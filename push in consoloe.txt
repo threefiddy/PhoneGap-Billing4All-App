@@ -1,0 +1,1 @@
+phonegap push --deviceID fFS6deVdL4Q:APA91bFEpGoCm_ktpZzeFKcFK0d5qCl9UiZCCP538hv6YhqmSpLBm6v8ImSm8lK7XZ57BGMGK-7uzNJBkkdYFoNswHSsVPBEm63pOIkiox3_XhWNqyvBMh4c9oQFV5v57W78grvuyYeC --service gcm --payload "{\"data\":{\"title\": \"hello\",\"message\": \"world\"} }"

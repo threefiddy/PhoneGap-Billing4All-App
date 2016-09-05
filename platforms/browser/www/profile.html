@@ -1,0 +1,126 @@
+        <div data-role="page" class="pages ui-page ui-body-c ui-page-active">        
+            <div data-role="header" class="ui-header ui-bar-a" role="banner">
+                <h1 class="ui-title" role="heading" aria-level="1">Profile</h1>
+                <a href="index.html" data-direction="reverse" data-transition="slide" class="back">
+                    <span class="glyphicon glyphicon-menu-left" id="back" style="left: 0px;"></span>
+                </a>
+                 
+            </div><!-- /header -->
+            <div data-role="content">
+                <div id="loader"><img id="loader_icon" src="img/loader.png"></div>
+                <div class="profile_info">
+                    <span class="glyphicon glyphicon-pencil" style="float: right;
+    font-size: 27px;    margin-top: -20px;    padding: 10px;"></span>
+                    <form id="profile_update">
+                        <input type="text" name="id" disabled class="hidden">
+                        <label for="AccountName">Name</label>
+                        <input type="text" name="AccountName" disabled>
+                        <label for="AccountEmail">Account Email</label>
+                        <input type="text" name="AccountEmail" disabled>
+                        <label for="Created">Created</label>
+                        <input type="date" name="Created" disabled>
+                        <label for="firstName">First Name</label>
+                        <input type="text" name="firstName" disabled>
+                        <label for="lastName">Last Name</label>
+                        <input type="text" name="lastName" disabled>
+                        <label for="street1">Street</label>
+                        <input type="text" name="street1" disabled>
+                        <input type="text" name="street2" disabled>
+                        <label for="city">City</label>
+                        <input type="text" name="city" disabled>
+                        <label for="language">Language</label>
+                        <input type="text" name="language" disabled>
+                        <label for="country">Country</label>
+                        <input type="text" name="country" disabled>
+                        <label for="zip">Zip code</label>
+                        <input type="text" name="zip" disabled>
+                        <label for="phone">Phone number</label>
+                        <input type="text" name="phone" disabled>
+                        <input type="submit" name="sendform" value="Save" id="profile_send">
+                    </form>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var profile_user = JSON.parse(sessionStorage.getItem('user'));
+                $('input[name="AccountEmail"]').val(profile_user.Email);
+                $('input[name="id"]').val(profile_user.Id);
+                $('input[name="AccountName"]').val(profile_user.realName);
+                $('input[name="language"]').val(profile_user.Language);
+                $('input[name="country"]').val(profile_user.Country);
+                function format_the_date(a_date){
+                    return a_date.getFullYear()+"-"+(a_date.getMonth()<10?"0"+a_date.getMonth():a_date.getMonth())+"-"+(a_date.getDate()<10?"0"+a_date.getDate():a_date.getDate());
+                    //"DD-MM-YYYY"
+                };
+
+                $.getJSON("http://mobil.billing4all.com/JSon/AccountByUserId?id="+profile_user.Id,function(res){
+                        // alert("got it");
+                        console.log(res);
+                        var acc = res.Data[0];
+                        $('input[name="AccountName"]').val(acc.AccountName);
+                        $('input[name="AccountEmail"]').val(acc.AccountEmail);
+                        $('input[name="city"]').val(acc.City);
+                        $('input[name="country"]').val(acc.CountryVisualEn);
+                        $('input[name="firstName"]').val(acc.FirstName);
+                        $('input[name="language"]').val(acc.LanguageVisualEn);
+                        $('input[name="lastName"]').val(acc.LastName);
+                        $('input[name="phone"]').val(acc.Phone);
+                        $('input[name="street1"]').val(acc.Street1);
+                        $('input[name="street2"]').val(acc.Street2);
+                        $('input[name="zip"]').val(acc.Zip);
+                        $('input[name="id"]').parent().css("display","none");
+                        // var dateFormat = require('dateformat');
+                        console.log(format_the_date( new Date(parseInt(acc.Created.replace("/Date(","").replace(")/","")))));
+                        $('input[name="Created"]').val(format_the_date( new Date(parseInt(acc.Created.replace("/Date(","").replace(")/","")))));
+                        $('#loader').css('display','none');
+                });
+                $(".glyphicon-pencil").click(function(){
+
+                    
+                    if($(this).hasClass('lightblue')){
+                        $(this).removeClass("lightblue");
+                    }
+                    else{
+                        $(this).addClass('lightblue');
+                    }
+                    $(".profile_info input").each(function(){
+                        if($(this).attr("name")!="sendform"){
+                            if($(this).attr("disabled")=="disabled"&&$(this).attr("name")!="AccountName"&&$(this).attr("name")!="AccountEmail"&&$(this).attr("name")!="Created"){
+                                $(this).parent().removeClass("ui-state-disabled");
+                                $(this).removeAttr("disabled");
+                            }
+                            else{
+                                $(this).parent().addClass("ui-state-disabled");
+                                $(this).prop('disabled', true);
+                            }
+                        }
+                        else{
+
+                            $(this).toggle()
+                        }
+                            
+                    })     
+                })
+                
+                $('#profile_update').submit(function(e){
+                    $('input[name="AccountEmail"]').removeAttr("disabled");
+                  $('input[name="AccountEmail"]').parent().removeClass("ui-state-disabled");
+                  e.preventDefault();
+                  
+                  //do some verification
+                  // console.log($(this).serialize());
+                  $.ajax({
+                    // url: 'http://mobil.billing4all.com/Accounts/Edit',
+                    url: 'http://mobil.billing4all.com/JSon/AccountUpdate', 
+                    
+                    data: $(this).serialize(),
+                    method: 'POST',
+                    success: function(data)
+                    {
+                        $(".glyphicon-pencil").click();
+
+                    }
+                  });
+                  return false;
+                });
+            </script>
+        </div>

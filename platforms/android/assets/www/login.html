@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=middle-dpi" />
+        
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+        <link href="http://code.jquery.com/mobile/1.3.0/jquery.mobile-1.3.0.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+        <title>Billing4All</title>
+
+        <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+        <script src="js/jquery.mobile-1.3.0.min.js" type="text/javascript"></script>
+        <script type="text/javascript" src="js/main.js"></script>  
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+    	<div id="loader"><img id="loader_icon" src="img/loader.png"></div>
+    	<div data-role="page" class="pages ui-page ui-body-c ui-page-active">
+	    	<!-- <div data-role="header" class="ui-header ui-bar-a" role="banner" style="border-bottom: 1px solid #364452;">
+	            <h1 class="ui-title" role="heading" aria-level="1"></h1>
+	        </div><!-- /header --> -->
+	        <div data-role="content" style="background-color:#364452; top:0px;" >
+	        	<div class="company">
+			        <img src="img/b4a_310x310.png">
+			        <h3 style="color:#fff;">Billing4All</h3>
+			    </div>
+				<form id="login_form" class="form-horizontal" method="post" role="form" novalidate="novalidate">
+					<input type="email" placeholder="Email" name="UserName"/>
+					<input type="password" placeholder="Password" name="Password"/>
+					<input class="hidden" name="RememberMe" value="true"></input>
+					<input class="hidden" name="isMobile" value="true"></input>
+					<input type="submit" value="Login"/>
+				</form>
+				<p class="error"></p>
+			</div>
+
+			<script type="text/javascript">
+				$("#loader").css("z-index","-1");
+				$('.form-horizontal').submit(function(e){
+				  e.preventDefault();
+				  
+				  //do some verification
+				  console.log($(this).serialize());
+				  $.ajax({
+				    url: 'localhost:3000/Account/Login',
+				    // url: 'http://localhost:59599/Account/Login', 
+				    
+				    data: $(this).serialize(),
+				    method: 'POST',
+				    success: function(data)
+				    {
+				    	$("#loader").css("z-index","-1");
+				    	localStorage.setItem('user',JSON.stringify($('.form-horizontal').serialize()));
+				  		sessionStorage.setItem('user',JSON.stringify(data));
+				  		console.log(JSON.stringify(data))
+				  		if(JSON.stringify(data)!=""&&JSON.stringify(data)!='""'&&JSON.stringify(data)!='"notConfirmed"')
+				    		window.location.replace("index.html");
+				    	else if(JSON.stringify(data)=='"notConfirmed"'){
+							$(".error").html("Please confirm your email to login. ")
+				    	}
+				    	else{
+				    		$(".error").html("Could not log you into the system. Please check your e-mail and password for errors. ")
+				      		//on error
+				    	}
+				    }
+				  });
+				  return false;
+				});
+				$(function(){
+					$(".hidden").parent().css("display","none");
+				})
+			</script>
+			<script type="text/javascript" src="cordova.js"></script>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,77 @@
+
+	<body>
+		<div data-role="page" class="pages ui-page ui-body-c ui-page-active">
+            <div data-role="header" class="ui-header ui-bar-a" role="banner">
+		        <h1 class="ui-title" role="heading" aria-level="1">Pay</h1>
+		        <a href="index.html" data-direction="reverse" data-transition="slide" class="back"><span class="glyphicon glyphicon-menu-left" id="back"></span></a>
+        	</div><!-- /header -->
+        	<div data-role="content">
+        		<div id="content">
+			    <div class="company">
+			        <img src="img/logo.png">
+			        <h3>Billing4All</h3>
+			    </div>
+		    <h2 id="planName"></h2>
+		    <h4 id="totalAmountToPay"></h4>
+
+			<!-- <form id="checkout" name='checkout' action="#" method="POST" > 
+				<input type="text" class="card-number" placeholder="0000 0000 0000 0000" required/><br />
+				<input type="text" class="card-expiry" placeholder="mm / yy" required /><br />
+				<input type="text" class="card-code" placeholder="CVC" maxlength="4" pattern="[0-9]{3,4}" required /><br />
+				<input class="paypayment"type="submit" value="Pay"/>
+			</form>
+			<a href="paymentAuto.html" data-transition="fade" style="display:none;" id='paid'></a> -->
+			<!-- Autopayment start -->
+			<br/>
+			<div id="autopay" style="display:none;" onclick="checkCheckbox()">
+		        <input type="checkbox" id="checkAutopay" onclick="checkCheckbox()">   
+		        <p>Do you want to have the payment pay automatically in the future?</p>
+	    	</div>
+
+			<button id="paylikeButton">Pay now</button>
+	    	
+	    	<!-- Autopayment end -->
+		<script>
+		var paylike
+			$(function(){
+			paylike = Paylike('e9f468a8-4b63-46a5-aaf3-0911312bae27');
+			document.querySelector('#paylikeButton').addEventListener('click', pay);
+			function pay(){
+				paylike.popup({
+					currency: transcurrency,
+					amount: transamount * 100, //TODO handle decimal numbers
+				}, function( err, r ){
+					if (err)
+						return console.warn(err);
+					/*console.log(r);*/	// { transaction: { id: ... } }
+					
+					AcceptPay();
+					
+						//TODO Handle autopayment
+				});
+			}
+		
+		var transamount;
+		var transcurrency;
+		var transIdPayment = location.search.substring(1).split("transId=")[1];
+			$('document').ready(function() {
+				$.getJSON("http://mobil.billing4all.com/JSon/SearchTransactionsCombined?transactionIds="+transIdPayment, function(result){
+				    /*var json = JSON.stringify(result, null, 2);*/
+				    console.log(result);
+					$('#planName').html(result.Data[0].PlanName); 
+					var totAmount = "Amount: "+result.Data[0].AmountToPay + " " + result.Data[0].Currency;
+					$('#totalAmountToPay').html(totAmount);   
+					transamount = result.Data[0].AmountToPay;
+					transcurrency = result.Data[0].Currency;
+				});
+			});
+			})
+	    </script>
+
+		<script type="text/javascript" src="js/payment.js"></script>
+
+		</div>
+        	</div>
+		</div>
+		
+

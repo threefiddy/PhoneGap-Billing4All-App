@@ -1,0 +1,51 @@
+<script type="text/javascript" src="js/commen.js"></script>
+<div class="top_grid">
+	<div class="half_width"><span id="subs">18</span> Subscribers</div>
+	<div class="half_width"><span id="avgrev">181.01</span> Average revenue pr. subscriber</div>
+	<div class="half_width"><span id="totrevmonth">3200.00</span> Total Revenue pr. Month</div>
+	<div class="half_width"><span id="overdue">32</span> Overdue transactions</div>
+</div>
+<div class="notifications" onload="">
+	<h3>Notifications</h3>
+	<ul>
+		<li></li>
+	</ul>
+	<a data-transition='fade' href="abo_transactions.html">trans</a>
+<button onclick="localStorage.clear(); sessionStorage.clear()">ASD</button>
+<button data-prefetch data-transition='fade' href="paymentAuto.html">ASDASD</button>
+</div>
+<div class="bottom_buttons">
+	<a>
+		<span class="glyphicon glyphicon-plus"></span>
+		<p>Add Subscriber</p>
+	</a>
+	<a>
+		<span class="glyphicon glyphicon-plus"></span>
+		<p>Add Subscribtion</p>
+	</a>
+	<a>
+		<span class="glyphicon glyphicon-option-vertical"></span>
+		<p>More</p>
+	</a>
+
+</div>
+
+<script type="text/javascript">
+function callPayment(){
+	window.location = "paymentAuto.html";
+}
+	$(function(){
+		$(".notifications").height(window.innerHeight/100*50);
+		$(".half_width").height(window.innerHeight/100*15);
+		$(".top_grid").height(window.innerHeight/100*15*2);
+		$(".bottom_buttons").height(window.innerHeight/100*20-42);
+/*		list=["AbbonementCount","AvgRevenuePrAbo","TotalRevenuePrMonth","OutstandingTransactionsForCustomer"]
+		for(i=0;i<list.length;i++)
+			$(".top_grid").append('<object class="half_width" style="height:'+window.innerHeight/100*15+'px" data="http://localhost:59599/DashboardPartial/'+list[i]+'"></object>');*/
+		$(".half_width").unbind('load');
+		$(".half_width").load(function(){
+			console.log("pizza")
+		})
+	});
+
+</script>

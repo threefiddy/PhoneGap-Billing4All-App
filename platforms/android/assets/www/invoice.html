@@ -1,0 +1,198 @@
+
+
+
+<div data-role="page" class="pages ui-page ui-body-c ui-page-active">
+    
+    
+    <div data-role="header" class="ui-header ui-bar-a" role="banner">
+    	
+        <h1 class="ui-title" role="heading" aria-level="1"><span id="planNameHeader"></span></h1>
+        <a href="#" data-direction="reverse" data-transition="slide" class="back" ><span class="glyphicon glyphicon-menu-left" id="back"></span></a>
+         
+    </div><!-- /header -->
+<div data-role="content" style="padding-top:20px;">
+	<div id="loader"><img id="loader_icon" src="img/loader.png"></div>
+	<div class="row">
+		<span Id="autopay_true">Set to autopayment and can't be payed manually.</br>Go to the plan to cancel.</span>
+		<span Id="autopay_true_and_error">Set to autopayment, but has an error. </br>Transaction needs a manual payment.</span>
+		<span Id="something_went_wrong">Something went wrong- </br>Transaction needs a manual payment.</span>
+		
+	</div>	
+	<div class="container">
+		<div styles="height: 169px;">
+			<div class="row">
+				<span id="customerName"></span>
+				<span id="accountName" class="rightInfo" ></span>
+			</div>
+			<div class="row" style="margin-bottom: 0px;">
+				<span id="address"></span>
+				<span id="address2" class="rightInfo"></span>
+			</div>
+			<div class="row">
+				<span id="zip1"></span><span id="city1"></span>
+				<span id="zip2" class="rightInfo"></span>
+			</div>
+
+			<div class="row" style="border-bottom: 2px solid black; padding-bottom:8px; margin-bottom: 15px;">
+				<span id="CVR"></span>
+			</div>
+		</div>
+	<div class="row" style="margin-bottom:3px;">
+		<span class="rightInfo">Due date</span>
+	</div>
+	<div class="row" style="border-bottom: 2px solid black;padding-bottom:13px; margin-bottom: 0px;">
+		<span id="paymentTime" class="rightInfo" style="font-weight:600;"></span>
+	</div>
+	<div class="row" style="border-bottom: 2px solid black; margin-bottom:0px; background-color:rgb(185, 185, 185);">
+		<span>Items</span>
+		<span class="rightInfo">Amount</span>
+	</div>
+	<div class="row productRow">
+		<div class="productRowInfo">
+		<span>Product1</span>
+		<span class="currency" style="float:right;"></span><span id="paymentTime" class="rightInfo" style="margin-right: 5px;">200</span>
+		</div>
+	</div>
+	<div class="row productRow">
+		<div class="productRowInfo">
+		<span>Product2</span>
+		<span class="currency" style="float:right;"></span><span id="paymentTime" class="rightInfo" style="margin-right: 5px;">300</span>
+	   </div>
+	</div>
+	<div class="row productRow" style="border-bottom: 2px solid black;margin-bottom: 15px;">
+		<div class="productRowInfo">
+		<span>Product3</span>
+		<span class="currency" style="float:right;"></span><span id="paymentTime" class="rightInfo" style="margin-right: 5px;">400</span>
+		</div>
+	</div>
+
+	<div class="row">
+		<span>Amount</span>
+		<span class="currency" style="float:right;"></span><span id="amount" class="rightInfo" style="margin-right: 5px;"></span>
+	</div>
+	<div class="row" style="margin-bottom:10px;">
+		<span>Tax Amount</span>
+		<span class="currency" style="float:right;"></span><span id="taxAmount" class="rightInfo" style="margin-right: 5px;"></span>
+	</div>
+	<div class="row">
+		<span style="padding-top: 15px;display: inline-block;">Total due</span>
+		<div>
+			<a data-transition='slide' style="float:right;margin-top: -32px; " id="payNowButton">
+				<span class="currency" style="float:right;"></span>
+				<span id="totalAmount" class="rightInfo" style="font-size: 20px;font-weight: bold;margin-top: -5px; margin-right: 5px; float:right;"></span>
+			</a>
+		</div>
+	</div>
+	
+</div>
+<!-- <a data-transition='fade' href='' ><span class="glyphicon glyphicon-usd" id="payNowButton"></span></a> -->
+      
+<script type="text/javascript">
+
+var userId = JSON.parse(sessionStorage.getItem('user')).Id;
+var transactionIds = sessionStorage.getItem('invoiceId');
+var userPlanIds = [];
+function initInvoice(){
+	setTimeout(function(){
+		$.getJSON("http://mobil.billing4all.com/JSon/UserPlanByUserId?id="+userId+"", function(resUserPlan){
+		    for (var i = 0; i < resUserPlan.Data.length; i++) {
+		    	userPlanIds.push(resUserPlan.Data[i].Userplanid);
+		    };
+			$.getJSON("http://mobil.billing4all.com/JSon/SearchTransactionsCombined?transactionIds="+transactionIds, function(result){
+				var res = result.Data[0]
+				if (res!= undefined) {
+					var createdDate = new Date(parseInt(res.Created.replace("/Date(","").replace(")/","")));
+					var paymentDate = new Date(parseInt(res.Paymenttime.replace("/Date(","").replace(")/","")));
+				}
+			    $('#planNameHeader').html(res==undefined?"":result.Data[0].PlanName);
+			    /*var invNr = res==undefined?"":"Invoice Nr. "+res.NrOfReminders*/
+	/*		    $('#invoiceNr').html("Invoice ID: xxx"); */
+			    $('#accountName').html(res==undefined?"":res.Accountname); 
+			    $('#amount').html(res==undefined?"":res.Amount + res.ExtraAmount); 
+			    $('#taxAmount').html(res==undefined?"":res.TaxAmount + res.TaxExtraAmount);
+			    var invTotalAmount =  res==undefined?"":"Pay "+res.AmountToPay
+			    $('#totalAmount').html(invTotalAmount); 
+			    var invStat = res==undefined?"":"Status: " +res.StatusVisual
+			    $('#invoice_status').html(invStat); 
+			    $('.currency').html(res==undefined?"":res.Currency);
+			    $('#createdPayment').html(createdDate==undefined?"":createdDate.toString().substring(4,15)); 
+		  	    $('#paymentTime').html(paymentDate==undefined?"":paymentDate.toString().substring(4,15)); 
+				var statusPayment = res==undefined?"":res.Status;
+				sessionStorage.setItem("trans_status",statusPayment);
+				sessionStorage.setItem("auto_payment",resUserPlan.Data[userPlanIds.indexOf(res.Userplanid)].Allowautopayment);
+				
+				/*console.log(statusPayment);*/
+
+				if (statusPayment == 20 || statusPayment == 90 || statusPayment == 100 || statusPayment == 101 || statusPayment == 102 || statusPayment == 103 || statusPayment == "" || statusPayment == undefined) {
+					$('#payNowButton').css("background", "linear-gradient(to bottom, rgb(87, 90, 88) 0%, rgb(183, 198, 187) 100%)")
+					$('#payNowButton').attr('disabled', 'disabled');
+				}
+
+				else if (resUserPlan.Data[userPlanIds.indexOf(res.Userplanid)].Allowautopayment && statusPayment != 80) {
+					$('#payNowButton').css("background", "linear-gradient(to bottom, rgb(87, 90, 88) 0%, rgb(183, 198, 187) 100%)")
+					$('#payNowButton').attr('disabled', 'disabled');
+					$('#autopay_true').css('display', 'block');
+				}
+
+				else if (resUserPlan.Data[userPlanIds.indexOf(res.Userplanid)].Allowautopayment && statusPayment == 80) {
+/*					$('#payNowButton').css("background", "linear-gradient(to bottom, rgb(87, 90, 88) 0%, rgb(183, 198, 187) 100%)")
+					$('#payNowButton').attr('disabled', 'disabled');*/
+					$('#payNowButton').attr("href", "paymentWindow.html?transId="+transactionIds);
+					$('#autopay_true_and_error').css('display', 'block');
+				}
+
+				else if (statusPayment == 80 || statusPayment == 99 || statusPayment == 103 || statusPayment == 200) {
+					$('#payNowButton').attr("href", "paymentWindow.html?transId="+transactionIds);
+					$('#something_went_wrong').css('display', 'block');
+				}
+
+			    if ($('#payNowButton').attr('disabled') == undefined) {
+					$('#payNowButton').attr("href", "paymentWindow.html?transId="+transactionIds);
+				};
+				$.getJSON("http://mobil.billing4all.com/JSon/GetAccInfoByTransid?transactionIds="+transactionIds, function(result){
+					var res = result.Data[0];
+					
+					$('#address2').html(res==undefined?"":res.Street1);
+					var invZip2 = res==undefined?"":res.Zip+ " " + res.City;
+					$('#zip2').html(invZip2);
+					$.getJSON("http://mobil.billing4all.com/JSon/GetCustomerToTransaction?transactionIds="+transactionIds, function(result){
+						var res = result.Data[0];
+						
+						$('#customerName').html(res==undefined?"":res.customerName);
+						$('#address').html(res==undefined?"":res.Street1);
+						var invCvr = res==undefined?"":"CVR Nr: "+res.Cvr
+						$('#CVR').html(invCvr);
+						var invZip = res==undefined?"":res.Zipcode+ " ";
+						$('#zip1').html(invZip);
+						$('#city1').html(res==undefined?"":res.City);
+						if (statusPayment == 90) {
+							$.getJSON("http://mobil.billing4all.com/JSon/GetCustomerToTransactionLog?transactionIds="+transactionIds, function(result){
+								var res = result.Data[0];
+								$('#customerName').html(res==undefined?"":res.customerName);
+								$('#address').html(res==undefined?"":res.Street1);
+								var invCvr = res==undefined?"":"CVR Nr: "+res.Cvr
+								$('#CVR').html(invCvr);
+								var invZip = res==undefined?"":res.Zipcode+ " ";
+								$('#zip1').html(invZip);
+								$('#city1').html(res==undefined?"":res.City);
+								$("#loader").css("display","none");
+							});
+							$.getJSON("http://mobil.billing4all.com/JSon/GetAccInfoByTransLogid?transactionIds="+transactionIds, function(result){
+								var res = result.Data[0];
+								$('#address2').html(res==undefined?"":res.Street1);
+								var invZip2 = res==undefined?"":res.Zip+ " " + res.City;
+								$('#zip2').html(invZip2);
+								$("#loader").css("display","none");
+						    });
+						};
+						$("#loader").css("display","none");
+					});
+				});
+			});
+  		});
+	},500);
+}
+initInvoice();
+</script>
+</div>
+

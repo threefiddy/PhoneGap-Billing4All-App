@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <!-- <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" /> -->
+        
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+        <link href="css/jquery.mobile-1.3.0.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="">
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+        <title>Billing4All</title>
+
+        <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+        <script src="js/jquery.mobile-1.3.0.min.js" type="text/javascript"></script>
+        <script type="text/javascript" src="js/main.js"></script>  
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/commen.js"></script>
+
+        
+        
+    </head>
+    <body>
+
+<div data-role="page" class="pages ui-page ui-body-c " id="paid_over_year">
+            <div class="not_flipped">
+                <img src="img/screen.png" id="flip_img">
+            </div>
+            <div data-role="header" class="ui-header ui-bar-a" role="banner">
+            <script type="text/javascript">
+
+        </script>
+        <style type="text/css">
+            
+            /*#paid_over_year,#plan_overview,#expected_amount{
+                z-index: -1 !important;
+            }*/
+        </style>
+                <h3 class="header_report">Paid over a year</h3>
+                <a href="abo_reports.html" data-direction="reverse" data-transition="slide" class="back"><span class="glyphicon glyphicon-menu-left" id="back" style="    top: 0px;
+    left: 0px;"></span></a>
+                <!-- <script type="text/javascript" src="js/main.js"></script>   -->
+                <script src="js/Chart.bundle.js"></script>
+            </div><!-- /header -->
+            <div data-role="main" class="ui-content">
+                <div class="paid_over_year">
+                    <canvas id="canvas2"></canvas>
+                    <!-- <button onclick="make_lines();">Redraw</button> -->
+                    <!-- <button onclick="console.log(screen.width+":"+screen.height);">Redraw</button> -->
+                    <script type="text/javascript">
+                    var isPending = location.search.substring(1)=="pending"?true:false;
+                    var planId = location.search.substring(1).split("planId=")[1];
+                    var userId = JSON.parse(sessionStorage.getItem('user')).Id;
+                    var userPlanIds = [];
+                    var all_transactions=[];
+                    var _label="";
+
+                    (function () {
+                        // window.plugins.orientationLock.lock("landscape")
+                        // window.plugins.orientationLock.lock("landscape",function(){console.log("yay")},function(){console.log("Nay")})
+                        $("#flip_img").css({"margin-top":screen.height/2-100,"margin-left":screen.width/2-100})
+                        detectPortrait();
+                         window.addEventListener("orientationchange", function(){
+                            detectPortrait();
+                         }, true);
+                        $(document).on('pageinit',function(){
+                            detectPortrait();
+                        });
+
+                        function detectPortrait() {
+                            if (window.orientation==180||window.orientation==0||window.orientation==undefined) {
+                                console.log(screen.width+":"+screen.height+":"+window.orientation);
+                                $(".not_flipped").css("display","block");
+
+                            }
+                            else {
+                                console.log(screen.width+":"+screen.height+":"+window.orientation);
+                                $(".not_flipped").css("display","none");
+                            }
+                            if(window.myLine!=undefined)
+                                window.myLine.update();
+                            // window.myLine = new Chart(ctx, config);
+                        }
+                        $.getJSON("http://mobil.billing4all.com/JSon/UserPlanByUserId?id="+userId+"", function(result){
+                            var json = JSON.stringify(result, null, 2);
+                            for (var i = 0; i < result.Data.length; i++) {
+                                userPlanIds.push(result.Data[i].Userplanid);
+                            };
+                            get_trans();       
+                        });
+                    })();
+                    
+                    function format_list(){
+                        for(i in all_transactions){
+                            var temp_number=0;
+                            for(k in all_transactions[i].data){
+                                all_transactions[i].data[k]+=temp_number
+                                temp_number=all_transactions[i].data[k];
+                            }
+                        }
+                        
+                    }
+                    function add_to_transaction_list(label,position,data){
+                        // console.log(label);
+                        // console.log(position);
+                        // console.log(data);
+                        var data_to_add= [0,0,0,0,0,0,0,0,0,0,0,0];
+                        for(i=0;i<12;i++)
+                            if(i>=position)
+                            data_to_add[i]=data;
+                        _label=label;
+                        // console.log(data_to_add)
+                        var elm = undefined;
+                        for(trans in all_transactions)
+                            if(all_transactions[trans].label==label){
+                                elm=all_transactions[trans];
+                                break;
+                            }
+                        // console.log(elm);
+                        if(elm==undefined){
+                            all_transactions.push({
+                                        "label":_label,
+                                        data:data_to_add,
+                                        fill: false,
+                                        lineTension:0,
+                                        borderColor:randomColor(0.4),
+                                        backgroundColor:randomColor(0.5),
+                                        pointBorderColor:randomColor(0.7),
+                                        pointBackgroundColor:randomColor(0.5),
+                                        pointHitRadius: 25,
+                                        pointBorderWidth:1
+                                    })
+                        }else{
+                            var elm_index= all_transactions.indexOf(elm);
+                            for(i=0;i<elm.data.length;i++){
+                                elm.data[i]+=data_to_add[i];
+                            }
+                            // console.log(elm_index)
+                            all_transactions[elm_index]=elm;
+                        }
+                    }
+
+                        // $.each(config.data.datasets, function(i, dataset) {
+                        //     dataset.borderColor = randomColor(0.4);
+                        //     dataset.backgroundColor = randomColor(0.5);
+                        //     dataset.pointBorderColor = randomColor(0.7);
+                        //     dataset.pointBackgroundColor = randomColor(0.5);
+                        //     dataset.pointBorderWidth = 1;
+                        // });
+
+                    
+                    
+                        var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        var randomColor = function(opacity) {
+                            return 'rgba(' + randomColorFactor() + ',' + randomColorFactor() + ',' + randomColorFactor() + ',' + (opacity || '.3') + ')';
+                        };
+                        var randomColorFactor = function() {
+                            return Math.round(Math.random() * 255);
+                        };
+                        var config;
+                        
+                        function make_lines() {
+                            // console.log(all_transactions)
+                            config = {
+                                type: 'line',
+                                data: {
+                                    labels: MONTHS,
+                                    datasets: all_transactions.map(function(a){
+                                        var b = JSON.parse(JSON.stringify(a));
+                                        b.label = b.label.substring(0,4)+"...";
+                                        return b;
+                                    })
+                                },
+                                options: {
+                                    // responsive: true,
+                                    title:{
+                                        display:true,
+                                        text:'Paid over a year'
+                                    },
+                                    
+                                    hover: {
+                                        mode: 'dataset'
+                                    },
+                                    scales: {
+                                        xAxes: [{
+                                            display: true,
+                                            scaleLabel: {
+                                                show: true,
+                                                labelString: 'Month'
+                                            }
+                                        }],
+                                        yAxes: [{
+                                            display: true,
+                                            scaleLabel: {
+                                                show: true,
+                                                labelString: 'Amount'
+                                            },
+                                            ticks: {
+                                                suggestedMin: 0,
+                                                suggestedMax: 250,
+                                            }
+                                        }]
+                                    }
+                                }
+                            };
+                            $("#canvas2").removeAttr("style");
+                            var ctx = document.getElementById("canvas2").getContext("2d");
+                            window.myLine = new Chart(ctx, config);
+                            
+
+                        };
+                        
+                        
+                            
+                        
+                        function get_trans(){
+                            $.getJSON("http://mobil.billing4all.com/JSon/SearchTransactions?userplanIds="+userPlanIds, function(result2){
+     
+                                get_trans_log();
+                            });
+                        }
+                        function get_trans_log(){
+                            $.getJSON("http://mobil.billing4all.com/JSon/SearchTransactionLogs?userplanIds="+userPlanIds, function(result3){
+                                    var json3 = result3.Data;
+                                    for(j=0;j<json3.length;j++){
+                                        var _date = new Date(parseInt(json3[j].Paymenttime.replace("/Date(","").replace(")/","")))
+                                        if(_date.getYear()==new Date().getYear())
+                                            add_to_transaction_list(json3[j].PlanName,(_date.getMonth()),json3[j].TotalAmountNoTax);
+                                    }
+                                    console.log(all_transactions)
+                                    make_lines();
+                                    console.log(json3);
+                            });
+                        }
+                    </script>
+                    
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="js/notification.js"></script>
+        <script type="text/javascript">
+        app.initialize();
+        </script>
+        
+    </body>
+</html>

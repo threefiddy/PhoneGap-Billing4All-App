@@ -1,0 +1,46 @@
+
+<div data-role="page" class="pages ui-page ui-body-c ui-page-active">
+    <div id="loader_complete" style="display:none;"> <span class="circle_load"><span class="glyphicon glyphicon-ok check_mark"></span></span></div>
+    <div id="loader_complete_bg"></div>
+    <div data-role="header" class="ui-header ui-bar-a" role="banner">
+        <h1 id="abo_plan_detail_title" class="ui-title" role="heading" aria-level="1"></h1>
+        <a href="index.html" data-direction="reverse" data-transition="slide" class="back"><span class="glyphicon glyphicon-menu-left" id="back" style="left: 0px;"></span></a>
+        <span id="plan_details_settings" class="glyphicon glyphicon-option-vertical"></span>
+        <div id="plan_details_settings_menu">
+            <div id="unsubscribe_plan">Unsubscribe</div>
+            <div id="stop_autopayment_plan">Stop autopay</div>
+        </div>
+        <div id="loader2"><img id="loader_icon" src="img/loader.png"></div>
+
+    </div><!-- /header -->
+    <div data-role="content" style="padding-top:20px;">
+<!--                 <div id="loader" style="display:none;"><img id="loader_icon" src="img/loader.png"></div> -->
+        <div id="plan_details">
+            <div id="company_name">
+                <p>Company Name: </p>
+                loading...
+            </div>    
+            <div id="company_email">
+                <p>Email: </p>
+                loading...
+            </div>
+            <div id="company_phone">
+                <p>Phone: </p>
+                loading...
+            </div>
+            <div id="next_payment">
+                <p>Next payment: </p>
+                loading...
+            </div>
+            <div id="auto_payment">
+                <p>Auto payment: </p>
+                loading...
+            </div>
+        </div>
+        <ul id="plan_detail_list" data-filter="true" data-input="#myFilter">
+            <li>Next payments</li>
+        </ul>
+    </div>
+    <script type="text/javascript" src="js/abo_plan_detail.js"></script>
+</div>
+   
